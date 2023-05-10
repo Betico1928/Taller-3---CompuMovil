@@ -20,9 +20,10 @@ class MainActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        mAuth = FirebaseAuth.getInstance()
 
         binding.login.setOnClickListener {
-            signInUser(binding.usrName.toString(),binding.psw.toString())
+            signInUser(binding.usrName.text.toString(),binding.psw.text.toString())
 
         }
 
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity()
     }
 
     private fun signInUser(email: String, password: String) {
+        Log.i("creds",email+password)
         if (validateForm()) {
             mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(
