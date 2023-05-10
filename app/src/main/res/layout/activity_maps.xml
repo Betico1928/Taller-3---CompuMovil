@@ -16,9 +16,13 @@
 
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <Button
                 android:id="@+id/ocupadoButton"
@@ -44,7 +48,7 @@
             <ImageButton
                 android:id="@+id/logOutButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="#FFFFFF"
@@ -57,10 +61,13 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="650dp"
+            android:layout_marginTop="14dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:context=".MapsActivity"></fragment>
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            tools:context=".MapsActivity">
+        </fragment>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
