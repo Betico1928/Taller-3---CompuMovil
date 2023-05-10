@@ -27,6 +27,11 @@ class MainActivity : AppCompatActivity()
 
         }
 
+        binding.register.setOnClickListener {
+            val intent = Intent(baseContext, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+
 
 
     }
