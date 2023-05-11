@@ -1,9 +1,14 @@
 package javeriana.edu.co.taller3_compumovil
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -32,6 +37,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        encenderGPS()
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -72,6 +79,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             )
         } else {
             enableMyLocation()
+        }
+    }
+
+    private fun encenderGPS()
+    {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("El GPS está apagado, ¿desea encenderlo?").setCancelable(false).setPositiveButton("Sí") { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+                .setNegativeButton("No") { dialog, _ ->
+                    dialog.cancel()
+                }
+            val alert = builder.create()
+            alert.show()
         }
     }
 
