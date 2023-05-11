@@ -8,18 +8,24 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
+import javeriana.edu.co.taller3_compumovil.databinding.ActivityMapsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -32,11 +38,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+    private lateinit var mapsBinding : ActivityMapsBinding
     private var currentMarker: Marker? = null
+    private lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        mapsBinding = ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(mapsBinding.root)
 
         encenderGPS()
 
@@ -46,7 +55,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        locationCallback = object : LocationCallback() {
+        locationCallback = object : LocationCallback()
+        {
             override fun onLocationResult(locationResult: LocationResult)
             {
                 locationResult
@@ -55,6 +65,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     updateMarker(location)
                 }
             }
+        }
+
+        mapsBinding.logOutButton.setOnClickListener {
+            mAuth.signOut()
+            Toast.makeText(baseContext, "Cerrando sesión...", Toast.LENGTH_LONG).show()
+
+            val retrocederALogIn = Intent(baseContext, MainActivity::class.java)
+            startActivity(retrocederALogIn)
         }
     }
 
@@ -149,6 +167,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 enableMyLocation()
             }
         }
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+
+        mAuth = FirebaseAuth.getInstance()
     }
 
     override fun onResume() {
