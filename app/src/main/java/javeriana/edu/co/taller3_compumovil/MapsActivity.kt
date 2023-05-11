@@ -15,6 +15,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -45,8 +51,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
+    override fun onMapReady(googleMap: GoogleMap)
+    {
         mMap = googleMap
+
+        loadLocationsFromJson()
+
+        // Zoom
+        mMap.uiSettings.isZoomGesturesEnabled = true
+        // Controles de zoom
+        mMap.uiSettings.isZoomControlsEnabled = true
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
@@ -95,7 +109,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         {
             currentMarker?.position = newLatLng
         }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 15f))
+
+        // Que la camara se mueva con la ubicación
+        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 15f))
     }
 
     override fun onRequestPermissionsResult(
@@ -129,7 +145,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    companion object {
+    companion object
+    {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
+
+    private fun loadLocationsFromJson()
+    {
+        GlobalScope.launch(Dispatchers.IO)
+        {
+            val jsonFile = assets.open("locations.json").bufferedReader().use{ it.readText() }
+
+            val jsonObject = JSONObject(jsonFile)
+            val locationsArray: JSONArray = jsonObject.getJSONArray("locationsArray")
+
+            withContext(Dispatchers.Main)
+            {
+                for (i in 0 until locationsArray.length())
+                {
+                    val locationObject = locationsArray.getJSONObject(i)
+                    val latitude = locationObject.getDouble("latitude")
+                    val longitude = locationObject.getDouble("longitude")
+                    val name = locationObject.getString("name")
+                    val latLng = LatLng(latitude, longitude)
+                    mMap.addMarker(MarkerOptions().position(latLng).title(name))
+                }
+            }
+        }
     }
 }
