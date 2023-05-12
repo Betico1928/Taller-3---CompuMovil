@@ -8,6 +8,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -35,12 +36,22 @@ import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    // Map Vars
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private lateinit var mapsBinding : ActivityMapsBinding
     private var currentMarker: Marker? = null
+
+    // Realtime DB and Auth Vars
     private lateinit var mAuth: FirebaseAuth
+    var email: String? = ""
+    var uid: String = ""
+    var displayName: String? = ""
+    var user: User? = null
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,6 +154,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateMarker(location: Location) {
         val newLatLng = LatLng(location.latitude, location.longitude)
 
+        // Update user info
+        user?.lat = newLatLng.latitude
+        user?.long = newLatLng.longitude
+        Log.d("LoggedUserInfo", "User info updated = " + user.toString())
+
+
         if (currentMarker == null)
         {
             currentMarker = mMap.addMarker(MarkerOptions().position(newLatLng).title("Ubicacion Actual"))
@@ -174,6 +191,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onStart()
 
         mAuth = FirebaseAuth.getInstance()
+        getFirebaseAuthUserInfo()
     }
 
     override fun onResume() {
@@ -223,4 +241,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
+
+
+    // Firebase funcs
+
+    fun getFirebaseAuthUserInfo() {
+        val currentUser = mAuth.currentUser
+
+        if (currentUser != null) {
+            // User is signed in, get the user's data
+            email = currentUser.email
+            uid = currentUser.uid
+            displayName = currentUser.displayName
+
+            Log.d("LoggedUserInfo", "User email: $email")
+            Log.d("LoggedUserInfo", "User UID: $uid")
+            Log.d("LoggedUserInfo", "display Name: $displayName")
+
+
+            val userEmail: String = email?.toString() ?: ""
+            val userName: String = displayName?.toString() ?: ""
+
+            // Create the user.
+            user = createUser(userEmail, userName, 0.0, 0.0)
+
+            Log.d("LoggedUserInfo", "init user = " + user.toString())
+
+
+        } else {
+            Log.d("LoggedUserInfo", "No user is currently signed in")
+        }
+    }
+
+    fun createUser(name: String, email: String, lat: Double, long: Double): User {
+        return User(name, email, lat, long)
+    }
+
+
 }
