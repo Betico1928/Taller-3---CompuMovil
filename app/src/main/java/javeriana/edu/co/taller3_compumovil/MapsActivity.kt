@@ -26,9 +26,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityMapsBinding
 import kotlinx.coroutines.Dispatchers
@@ -285,8 +289,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d("LoggedUserInfo", "display Name: $displayName")
 
 
-            val userEmail: String = email?.toString() ?: ""
-            val userName: String = displayName?.toString() ?: ""
+            val userEmail: String = email?.toString()!!
+            val userName: String = displayName?.toString()!!
 
             // Create the user.
             user = createUser(userName, userEmail, 0.0, 0.0, false)
@@ -306,11 +310,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun initRealtimeDB() {
         database = Firebase.database.reference
         Log.d("RealtimeDB", "RealtimeDB init done.")
+
+        subscribeToChanges()
     }
 
     fun writeUserToRealtimeDB(){
         database.child("users").child(mAuth.currentUser?.uid.toString()).setValue(user)
         Log.d("RealtimeDB", "RealtimeDB user data update.")
+    }
+
+    fun subscribeToChanges(){
+        val userListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Get list of User objects and use the values to update the UI
+                val userList = mutableListOf<User>()
+                for (userSnapshot in dataSnapshot.children) {
+                    val user = userSnapshot.getValue<User>()
+                    userList.add(user!!)
+                }
+
+                Log.d("RealtimeDB", "Data received from DB... " + userList)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting User failed, log a message
+                Log.d("RealtimeDB", "loadUser:onCancelled", databaseError.toException())
+            }
+        }
+
+        database.child("users").addValueEventListener(userListener)
+
     }
 
 }
