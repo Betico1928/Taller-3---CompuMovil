@@ -129,7 +129,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapsBinding.disponibleButton.setOnClickListener {
 
-            // Check that name is set
+            // Check that name is set. Get data again
+            mAuth = FirebaseAuth.getInstance()
             val currentUser = mAuth.currentUser
 
             if (currentUser != null) {

@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity()
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
-                    enableNotifications()
+                    notificationPermissionAndListenerServiceStart()
                 } else {
                     // Permission denied
                     AlertDialog.Builder(this)
@@ -86,10 +86,6 @@ class MainActivity : AppCompatActivity()
                 }
             }
         }
-    }
-
-    private fun enableNotifications() {
-        // TODO: Add code to enable notifications
     }
 
 
