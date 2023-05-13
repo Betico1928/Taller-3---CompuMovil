@@ -26,6 +26,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityMapsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -45,6 +49,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Realtime DB and Auth Vars
     private lateinit var mAuth: FirebaseAuth
+
+    private lateinit var database: DatabaseReference
+    val PATH_USERS = "users/"
+
     var email: String? = ""
     var uid: String = ""
     var displayName: String? = ""
@@ -84,6 +92,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val retrocederALogIn = Intent(baseContext, MainActivity::class.java)
             startActivity(retrocederALogIn)
+        }
+
+        mapsBinding.disponibleButton.setOnClickListener {
+
+            // Update button color, and change status.
+            if (user?.disponible == false){
+                user?.disponible = true
+                mapsBinding.disponibleButton.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
+            } else {
+                user?.disponible = false
+                mapsBinding.disponibleButton.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
+            }
+
         }
     }
 
@@ -159,6 +180,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         user?.long = newLatLng.longitude
         Log.d("LoggedUserInfo", "User info updated = " + user.toString())
 
+        // Write to realtimeDB
+        writeUserToRealtimeDB()
+
 
         if (currentMarker == null)
         {
@@ -192,6 +216,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mAuth = FirebaseAuth.getInstance()
         getFirebaseAuthUserInfo()
+        initRealtimeDB()
     }
 
     override fun onResume() {
@@ -264,7 +289,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val userName: String = displayName?.toString() ?: ""
 
             // Create the user.
-            user = createUser(userEmail, userName, 0.0, 0.0)
+            user = createUser(userName, userEmail, 0.0, 0.0, false)
 
             Log.d("LoggedUserInfo", "init user = " + user.toString())
 
@@ -274,9 +299,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    fun createUser(name: String, email: String, lat: Double, long: Double): User {
-        return User(name, email, lat, long)
+    fun createUser(name: String, email: String, lat: Double, long: Double, disponible: Boolean): User {
+        return User(name, email, lat, long, disponible)
     }
 
+    fun initRealtimeDB() {
+        database = Firebase.database.reference
+        Log.d("RealtimeDB", "RealtimeDB init done.")
+    }
+
+    fun writeUserToRealtimeDB(){
+        database.child("users").child(mAuth.currentUser?.uid.toString()).setValue(user)
+        Log.d("RealtimeDB", "RealtimeDB user data update.")
+    }
 
 }
