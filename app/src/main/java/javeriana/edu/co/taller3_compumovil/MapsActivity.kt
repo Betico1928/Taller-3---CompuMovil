@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -319,17 +320,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.d("RealtimeDB", "RealtimeDB user data update.")
     }
 
-    fun subscribeToChanges(){
-        val userListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // Get list of User objects and use the values to update the UI
-                val userList = mutableListOf<User>()
-                for (userSnapshot in dataSnapshot.children) {
-                    val user = userSnapshot.getValue<User>()
-                    userList.add(user!!)
-                }
+    fun subscribeToChanges() {
+        val userListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                // This method is called once for each child that is added
+                val user = dataSnapshot.getValue<User>()
+                Log.d("RealtimeDB", "User added: " + user.toString())
+            }
 
-                Log.d("RealtimeDB", "Data received from DB... " + userList)
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                // This method is called whenever a child is updated
+                val user = dataSnapshot.getValue<User>()
+                Log.d("RealtimeDB", "User changed: "  + user.toString())
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                // This method is called when a child is removed
+                val user = dataSnapshot.getValue<User>()
+                Log.d("RealtimeDB", "User removed: "  + user.toString())
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                // This method is called when a child location is changed
+                val user = dataSnapshot.getValue<User>()
+                Log.d("RealtimeDB", "User moved: "  + user.toString())
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -338,8 +352,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        database.child("users").addValueEventListener(userListener)
-
+        database.child("users").addChildEventListener(userListener)
     }
+
 
 }
