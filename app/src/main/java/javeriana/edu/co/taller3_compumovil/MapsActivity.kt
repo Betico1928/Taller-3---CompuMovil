@@ -66,26 +66,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
             // This method is called once for each child that is added
             val user = dataSnapshot.getValue<User>()
-            Log.d("RealtimeDB", "User added: " + user.toString())
+            Log.d("RealtimeDB", "Listener -> User added: " + user.toString())
         }
         override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
             // This method is called whenever a child is updated
             val user = dataSnapshot.getValue<User>()
-            Log.d("RealtimeDB", "User changed: "  + user.toString())
+            Log.d("RealtimeDB", "Listener -> User changed: "  + user.toString())
         }
         override fun onChildRemoved(dataSnapshot: DataSnapshot) {
             // This method is called when a child is removed
             val user = dataSnapshot.getValue<User>()
-            Log.d("RealtimeDB", "User removed: "  + user.toString())
+            Log.d("RealtimeDB", "Listener -> User removed: "  + user.toString())
         }
         override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
             // This method is called when a child location is changed
             val user = dataSnapshot.getValue<User>()
-            Log.d("RealtimeDB", "User moved: "  + user.toString())
+            Log.d("RealtimeDB", "Listener -> User moved: "  + user.toString())
         }
         override fun onCancelled(databaseError: DatabaseError) {
             // Getting User failed, log a message
-            Log.d("RealtimeDB", "loadUser:onCancelled", databaseError.toException())
+            Log.d("RealtimeDB", "Listener -> loadUser:onCancelled", databaseError.toException())
         }
     }
 
@@ -121,7 +121,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(baseContext, "Cerrando sesión...", Toast.LENGTH_LONG).show()
 
             // Unsub from listener.
-            // unSubscribeToChanges()
+            unSubscribeToChanges()
 
             val retrocederALogIn = Intent(baseContext, MainActivity::class.java)
             startActivity(retrocederALogIn)
@@ -129,7 +129,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapsBinding.disponibleButton.setOnClickListener {
 
-            // Update button color, and change status.
+            // Check that name is set
+            val currentUser = mAuth.currentUser
+
+            if (currentUser != null) {
+                // User is signed in, get the user's data
+                rawName = currentUser.displayName
+                val parts = rawName?.split(";")
+                email = currentUser.email
+                uid = currentUser.uid
+                displayName = parts?.getOrNull(0) ?: ""
+                codigo = parts?.getOrNull(1) ?: ""
+
+                val userEmail: String = email?.toString()!!
+                val userName: String = displayName?.toString()!!
+                val userID: String = codigo?.toString()!!
+
+                user?.name ?: userName
+                user?.codigo ?: userID
+
+                Log.d("RealtimeDB", "UserName and Code Checked for Disponible change = " + user.toString())
+            }
+
+                // Update button color, and change status.
             if (user?.disponible == false){
                 user?.disponible = true
                 mapsBinding.disponibleButton.setBackgroundColor(ContextCompat.getColor(this, R.color.green))
@@ -309,7 +331,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (currentUser != null) {
             // User is signed in, get the user's data
-            rawName = currentUser.displayName ?: ""
+            rawName = currentUser.displayName
             val parts = rawName?.split(";")
             email = currentUser.email
             uid = currentUser.uid
@@ -317,6 +339,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             codigo = parts?.getOrNull(1) ?: ""
 
             // If something is null, make it empty
+            // displayName = parts.getOrNull(0) ?: ""
+            // codigo = parts.getOrNull(1) ?: ""
 
 
             Log.d("LoggedUserInfo", "User email: $email")
@@ -347,7 +371,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         database = Firebase.database.reference
         Log.d("RealtimeDB", "RealtimeDB init done.")
 
-        // subscribeToChanges()
+        subscribeToChanges()
     }
 
     fun writeUserToRealtimeDB(){

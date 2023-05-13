@@ -5,7 +5,12 @@ import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 class User {
+
     var name: String = ""
+        get() = field
+        set(value) {
+            field = value
+        }
 
     var email: String = ""
         get() = field
@@ -30,7 +35,12 @@ class User {
         set(value) {
             field = value
         }
-    var codigo: String =""
+
+    var codigo: String = ""
+        get() = field
+        set(value) {
+            field = value
+        }
 
     constructor()
     constructor(
