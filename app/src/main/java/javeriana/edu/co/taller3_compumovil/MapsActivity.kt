@@ -262,6 +262,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 enableMyLocation()
             }
+            else {
+                // Permission denied
+                AlertDialog.Builder(this)
+                    .setTitle("Permiso de localizacion denegado")
+                    .setMessage("Debe aceptar el permiso de la localizacion para poder ver su propia ubicacion en el mapa.\nSi deniega el permiso muchas veces, debera activarlo desde la configuracion")
+                    .setPositiveButton("Conceder permiso") { _, _ ->
+                        // Retry
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            ActivityCompat.requestPermissions(
+                                this,
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                                LOCATION_PERMISSION_REQUEST_CODE
+                            )
+                        }
+                    }
+                    .setNegativeButton("Ignorar", null)
+                    .show()
+            }
         }
     }
 

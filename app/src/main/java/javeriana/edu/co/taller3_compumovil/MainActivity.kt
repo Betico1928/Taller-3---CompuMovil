@@ -1,20 +1,29 @@
 package javeriana.edu.co.taller3_compumovil
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.GoogleMap
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityMainBinding
+import javeriana.edu.co.taller3_compumovil.services.BackgroundBootService
 
 
 class MainActivity : AppCompatActivity()
 {
     private lateinit var mAuth:FirebaseAuth
     private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -33,15 +42,61 @@ class MainActivity : AppCompatActivity()
         }
 
 
+        // Always check notification permission.
+        notificationPermissionAndListenerServiceStart()
 
     }
+
+    fun notificationPermissionAndListenerServiceStart() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                MainActivity.NOTIFICATIONS_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            // Init service if device has not been restarted.
+            val intent = Intent(this, BackgroundBootService::class.java)
+            applicationContext.startForegroundService(intent)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            MainActivity.NOTIFICATIONS_PERMISSION_REQUEST_CODE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    enableNotifications()
+                } else {
+                    // Permission denied
+                    AlertDialog.Builder(this)
+                        .setTitle("Permiso de notification denegado")
+                        .setMessage("Debe aceptar el permiso de las notificaciones para poder recibir actualizaciones sobre otros usuarios.\n" +
+                                "Si deniega el permiso muchas veces, debera activarlo desde la configuracion")
+                        .setPositiveButton("Conceder permiso") { _, _ ->
+                            // Retry
+                            notificationPermissionAndListenerServiceStart()
+                        }
+                        .setNegativeButton("Ignorar", null)
+                        .show()
+                }
+            }
+        }
+    }
+
+    private fun enableNotifications() {
+        // TODO: Add code to enable notifications
+    }
+
 
     override fun onStart() {
         super.onStart()
         val currentUser = mAuth.currentUser
         updateUI(currentUser)
-
-
     }
 
     private fun updateUI(currentUser: FirebaseUser?) {
@@ -97,6 +152,10 @@ class MainActivity : AppCompatActivity()
                     }
                 }
         }
+    }
+
+    companion object {
+        private const val NOTIFICATIONS_PERMISSION_REQUEST_CODE = 1000
     }
 
 }
