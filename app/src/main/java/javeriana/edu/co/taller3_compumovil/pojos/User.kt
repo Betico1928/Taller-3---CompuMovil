@@ -7,7 +7,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 class User {
     var name: String = ""
 
-    private var email: String = ""
+    var email: String = ""
         get() = field
         set(value) {
             field = value

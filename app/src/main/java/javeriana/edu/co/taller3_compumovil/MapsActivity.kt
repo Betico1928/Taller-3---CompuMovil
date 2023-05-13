@@ -311,8 +311,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // User is signed in, get the user's data
             rawName = currentUser.displayName ?: ""
             val parts = rawName?.split(";")
-            email = currentUser.email ?: ""
-            uid = currentUser.uid ?: ""
+            email = currentUser.email
+            uid = currentUser.uid
             displayName = parts?.getOrNull(0) ?: ""
             codigo = parts?.getOrNull(1) ?: ""
 
