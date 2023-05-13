@@ -2,9 +2,7 @@ package javeriana.edu.co.taller3_compumovil
 
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.renderscript.ScriptGroup.Binding
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
@@ -12,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.*
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityRegisterBinding
+import javeriana.edu.co.taller3_compumovil.pojos.User
 
 
 class RegisterActivity : AppCompatActivity() {
