@@ -10,10 +10,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.*
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityRegisterBinding
 
 
@@ -46,9 +43,9 @@ class RegisterActivity : AppCompatActivity() {
                             val user: FirebaseUser? = mAuth.currentUser
                             if (user != null) { //Update user Info
                                 val upcrb = UserProfileChangeRequest.Builder()
-                                upcrb.displayName =
-                                    binding.name.text.toString() + " " + binding.surname.getText()
-                                        .toString()
+                                upcrb.displayName = binding.name.text.toString() + " " + binding.surname.text.toString()+";"+binding.identification.text.toString()
+
+
                                 // upcrb.photoUri =
                                 //    Uri.parse("path/to/pic") //fake uri, use Firebase Storage
                                 user.updateProfile(upcrb.build())
@@ -56,14 +53,38 @@ class RegisterActivity : AppCompatActivity() {
                             }
                         }
                         if (!task.isSuccessful) {
-                            Toast.makeText(
-                                baseContext, "Task failed" + task.exception.toString(),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Log.e("Register", task.exception.toString())
+                            val exception = task.exception
+
+                            if (exception is FirebaseAuthUserCollisionException) {
+                                // Email already exists
+                                Toast.makeText(
+                                    baseContext, "The email address is already in use by another account",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else if  (exception is FirebaseAuthInvalidCredentialsException) {
+                                // Email already exists
+                                Toast.makeText(
+                                    baseContext, "The email address is badly formatted",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else{
+                                Toast.makeText(
+                                    baseContext, "Task failed" + task.exception.toString(),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                Log.e("Register", task.exception.toString())
+
+                            }
+
                         }
                     })
         }
+    }
+
+    fun createUser(name: String, email: String, lat: Double, long: Double, disponible: Boolean, codigo:String): User {
+        return User(name, email, lat, long, disponible,codigo)
     }
 
     private fun validateForm(): Boolean {
@@ -94,7 +115,13 @@ class RegisterActivity : AppCompatActivity() {
         if (TextUtils.isEmpty(surname)) {
             binding.surname.error = "Required."
             valid = false
-        } else {
+        }
+        val codigo: String = binding.identification.text.toString()
+        if(TextUtils.isEmpty(codigo)){
+            binding.identification.error = "Required."
+            valid = false
+
+        } else{
             binding.surname.error = null
         }
 
@@ -106,7 +133,7 @@ class RegisterActivity : AppCompatActivity() {
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             val intent = Intent(baseContext, MapsActivity::class.java)
-            intent.putExtra("user", currentUser.email)
+            intent.putExtra("user", binding.identification.text.toString())
             startActivity(intent)
         } else {
             binding.name.setText("")

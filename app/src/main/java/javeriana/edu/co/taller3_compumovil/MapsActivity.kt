@@ -62,6 +62,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var uid: String = ""
     var displayName: String? = ""
     var user: User? = null
+    var codigo: String? =""
+    var rawName: String? = ""
 
 
 
@@ -281,9 +283,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (currentUser != null) {
             // User is signed in, get the user's data
+            rawName = currentUser.displayName
+            val parts = rawName?.split(";")
             email = currentUser.email
             uid = currentUser.uid
-            displayName = currentUser.displayName
+            displayName = parts?.get(0)
+            codigo = parts?.get(1)
+
 
             Log.d("LoggedUserInfo", "User email: $email")
             Log.d("LoggedUserInfo", "User UID: $uid")
@@ -292,9 +298,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val userEmail: String = email?.toString()!!
             val userName: String = displayName?.toString()!!
+            val userID: String = codigo?.toString()!!
 
             // Create the user.
-            user = createUser(userName, userEmail, 0.0, 0.0, false)
+            user = createUser(userName, userEmail, 0.0, 0.0, false,userID)
 
             Log.d("LoggedUserInfo", "init user = " + user.toString())
 
@@ -304,8 +311,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    fun createUser(name: String, email: String, lat: Double, long: Double, disponible: Boolean): User {
-        return User(name, email, lat, long, disponible)
+    fun createUser(name: String, email: String, lat: Double, long: Double, disponible: Boolean, codigo:String): User {
+        return User(name, email, lat, long, disponible,codigo)
     }
 
     fun initRealtimeDB() {

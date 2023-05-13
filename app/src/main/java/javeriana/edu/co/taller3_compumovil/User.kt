@@ -6,12 +6,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 @IgnoreExtraProperties
 class User {
     var name: String = ""
-        get() = field
-        set(value) {
-            field = value
-        }
 
-    var email: String = ""
+    private var email: String = ""
         get() = field
         set(value) {
             field = value
@@ -29,21 +25,30 @@ class User {
             field = value
         }
 
-    var disponible: Boolean = false
+     var disponible: Boolean = false
         get() = field
         set(value) {
             field = value
         }
+    var codigo: String =""
 
     constructor()
-
-    constructor(name: String, email: String, lat: Double, long: Double, disponible: Boolean) {
+    constructor(
+        name: String,
+        email: String,
+        lat: Double,
+        long: Double,
+        disponible: Boolean,
+        codigo: String
+    ) {
         this.name = name
         this.email = email
         this.lat = lat
         this.long = long
         this.disponible = disponible
+        this.codigo = codigo
     }
+
 
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -52,13 +57,15 @@ class User {
             "email" to email,
             "lat" to lat,
             "long" to long,
-            "disponible" to disponible
+            "disponible" to disponible,
+            "codigo" to codigo
         )
     }
 
     override fun toString(): String {
-        return "User(name='$name', email='$email', lat=$lat, long=$long, disponible=$disponible)"
+        return "User(name='$name', email='$email', lat=$lat, long=$long, disponible=$disponible, codigo='$codigo')"
     }
+
 
     @IgnoreExtraProperties
     data class User(
@@ -66,7 +73,8 @@ class User {
         val email: String?,
         val lat: Double?,
         val long: Double?,
-        val disponible: Boolean?
+        val disponible: Boolean?,
+        val codigo: String?
     ) {
         // Null default values create a no-argument default constructor, which is needed
         // for deserialization from a DataSnapshot.
