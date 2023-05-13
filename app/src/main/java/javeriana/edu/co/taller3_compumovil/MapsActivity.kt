@@ -53,10 +53,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Realtime DB and Auth Vars
     private lateinit var mAuth: FirebaseAuth
-
     private lateinit var database: DatabaseReference
-    val PATH_USERS = "users/"
-
     var email: String? = ""
     var uid: String = ""
     var displayName: String? = ""
@@ -64,8 +61,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var codigo: String? =""
     var rawName: String? = ""
 
+    // Global listener is required so it can be removed later
+    val userListener = object : ChildEventListener {
+        override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            // This method is called once for each child that is added
+            val user = dataSnapshot.getValue<User>()
+            Log.d("RealtimeDB", "User added: " + user.toString())
+        }
+        override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            // This method is called whenever a child is updated
+            val user = dataSnapshot.getValue<User>()
+            Log.d("RealtimeDB", "User changed: "  + user.toString())
+        }
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+            // This method is called when a child is removed
+            val user = dataSnapshot.getValue<User>()
+            Log.d("RealtimeDB", "User removed: "  + user.toString())
+        }
+        override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            // This method is called when a child location is changed
+            val user = dataSnapshot.getValue<User>()
+            Log.d("RealtimeDB", "User moved: "  + user.toString())
+        }
+        override fun onCancelled(databaseError: DatabaseError) {
+            // Getting User failed, log a message
+            Log.d("RealtimeDB", "loadUser:onCancelled", databaseError.toException())
+        }
+    }
 
-
+    // Map funcs
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +119,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapsBinding.logOutButton.setOnClickListener {
             mAuth.signOut()
             Toast.makeText(baseContext, "Cerrando sesión...", Toast.LENGTH_LONG).show()
+
+            // Unsub from listener.
+            // unSubscribeToChanges()
 
             val retrocederALogIn = Intent(baseContext, MainActivity::class.java)
             startActivity(retrocederALogIn)
@@ -282,12 +309,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (currentUser != null) {
             // User is signed in, get the user's data
-            rawName = currentUser.displayName
+            rawName = currentUser.displayName ?: ""
             val parts = rawName?.split(";")
-            email = currentUser.email
-            uid = currentUser.uid
-            displayName = parts?.get(0)
-            codigo = parts?.get(1)
+            email = currentUser.email ?: ""
+            uid = currentUser.uid ?: ""
+            displayName = parts?.getOrNull(0) ?: ""
+            codigo = parts?.getOrNull(1) ?: ""
+
+            // If something is null, make it empty
 
 
             Log.d("LoggedUserInfo", "User email: $email")
@@ -300,7 +329,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val userID: String = codigo?.toString()!!
 
             // Create the user.
-            user = createUser(userName, userEmail, 0.0, 0.0, false,userID)
+            user = createUser(userName, userEmail, 0.0, 0.0, false, userID)
 
             Log.d("LoggedUserInfo", "init user = " + user.toString())
 
@@ -318,7 +347,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         database = Firebase.database.reference
         Log.d("RealtimeDB", "RealtimeDB init done.")
 
-        subscribeToChanges()
+        // subscribeToChanges()
     }
 
     fun writeUserToRealtimeDB(){
@@ -327,38 +356,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun subscribeToChanges() {
-        val userListener = object : ChildEventListener {
-            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                // This method is called once for each child that is added
-                val user = dataSnapshot.getValue<User>()
-                Log.d("RealtimeDB", "User added: " + user.toString())
-            }
-
-            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                // This method is called whenever a child is updated
-                val user = dataSnapshot.getValue<User>()
-                Log.d("RealtimeDB", "User changed: "  + user.toString())
-            }
-
-            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                // This method is called when a child is removed
-                val user = dataSnapshot.getValue<User>()
-                Log.d("RealtimeDB", "User removed: "  + user.toString())
-            }
-
-            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                // This method is called when a child location is changed
-                val user = dataSnapshot.getValue<User>()
-                Log.d("RealtimeDB", "User moved: "  + user.toString())
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting User failed, log a message
-                Log.d("RealtimeDB", "loadUser:onCancelled", databaseError.toException())
-            }
-        }
-
+        // Add already defined listener
         database.child("users").addChildEventListener(userListener)
+        Log.d("RealtimeDB", "Subbed to changes.")
+    }
+
+    fun unSubscribeToChanges() {
+        // Add already defined listener
+        database.child("users").removeEventListener(userListener)
+        Log.d("RealtimeDB", "UNSubbed to changes.")
     }
 
 
