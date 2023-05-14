@@ -45,7 +45,7 @@ class ListActivity : AppCompatActivity() {
                 Log.d("ListActivity", "onDataChange called")
                 for (userSnapshot in snapshot.children) {
                     val user = userSnapshot.getValue(RTDUser::class.java)
-                    if (user != null) {
+                    if (user != null && user.disponible) {
                         val imagePath = "images/profile/${user.email}/profile.jpg"
                         val storageReference = storage.getReference(imagePath)
                         val itemText = user.name
