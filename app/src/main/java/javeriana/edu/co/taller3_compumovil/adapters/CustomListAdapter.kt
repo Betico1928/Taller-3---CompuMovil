@@ -9,15 +9,19 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 
 import javeriana.edu.co.taller3_compumovil.R
 
 class CustomListAdapter(private val context: Context, private val itemList: List<Item>) : BaseAdapter() {
 
     private class ViewHolder(view: View) {
+
         val imageView: ImageView = view.findViewById(R.id.imageView)
         val textView: TextView = view.findViewById(R.id.textView)
         val button: Button = view.findViewById(R.id.button)
+
+
     }
 
     override fun getCount(): Int {
@@ -46,9 +50,23 @@ class CustomListAdapter(private val context: Context, private val itemList: List
 
         val item = getItem(position) as Item
 
-        viewHolder.imageView.setImageResource(item.imageResource)
+        Picasso.get()
+            .load(item.imageResource)
+            .into(viewHolder.imageView)
+
+        viewHolder.imageView.layoutParams.width = 100
+        viewHolder.imageView.layoutParams.height = 150
+
+        Picasso.get()
+            .load(item.imageResource)
+            .into(viewHolder.imageView)
         viewHolder.textView.text = item.text
         viewHolder.button.setOnClickListener(item.buttonClickListener)
+
+        viewHolder.imageView.requestLayout()
+
+
+
 
         return view
     }

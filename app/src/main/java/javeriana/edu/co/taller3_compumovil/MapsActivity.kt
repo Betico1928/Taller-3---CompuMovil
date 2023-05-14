@@ -115,6 +115,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+        mapsBinding.verUsuariosButton.setOnClickListener {
+            val intent = Intent(baseContext, ListActivity::class.java)
+            startActivity(intent)
+        }
 
         mapsBinding.logOutButton.setOnClickListener {
             mAuth.signOut()
