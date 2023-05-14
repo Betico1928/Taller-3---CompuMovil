@@ -16,9 +16,6 @@ import javeriana.edu.co.taller3_compumovil.pojos.RTDUser
 import javeriana.edu.co.taller3_compumovil.pojos.User
 
 private lateinit var storage: FirebaseStorage
-private lateinit var database: FirebaseDatabase
-val mStorageRef = FirebaseStorage.getInstance().reference
-private lateinit var databaseRef: DatabaseReference
 private lateinit var binding: ActivityListBinding
 
 class ListActivity : AppCompatActivity() {

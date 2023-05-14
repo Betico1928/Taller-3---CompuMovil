@@ -57,11 +57,10 @@ class CustomListAdapter(private val context: Context, private val itemList: List
         viewHolder.imageView.layoutParams.width = 100
         viewHolder.imageView.layoutParams.height = 150
 
-        Picasso.get()
-            .load(item.imageResource)
-            .into(viewHolder.imageView)
         viewHolder.textView.text = item.text
         viewHolder.button.setOnClickListener(item.buttonClickListener)
+
+
 
         viewHolder.imageView.requestLayout()
 
