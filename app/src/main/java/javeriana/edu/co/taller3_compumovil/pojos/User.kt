@@ -3,6 +3,7 @@ package javeriana.edu.co.taller3_compumovil.pojos
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 
+
 @IgnoreExtraProperties
 class User {
 

@@ -2,20 +2,35 @@ package javeriana.edu.co.taller3_compumovil
 
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityRegisterBinding
 import javeriana.edu.co.taller3_compumovil.pojos.User
+import java.io.File
 
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var binding: ActivityRegisterBinding
+    private lateinit var uri: Uri
+
+
+    val mStorageRef = FirebaseStorage.getInstance().reference
+
+
+    private val galleryrequest = registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback { result: Uri? -> loadImage(result) })
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAuth = FirebaseAuth.getInstance()
@@ -25,7 +40,14 @@ class RegisterActivity : AppCompatActivity() {
         binding.register.setOnClickListener {
             registerUser(binding.email.text.toString(),binding.password.text.toString())
 
-            }
+
+        }
+
+        binding.upload.setOnClickListener {
+
+            galleryrequest.launch("image/*")
+
+        }
 
 
 
@@ -48,6 +70,13 @@ class RegisterActivity : AppCompatActivity() {
                                 // upcrb.photoUri =
                                 //    Uri.parse("path/to/pic") //fake uri, use Firebase Storage
                                 user.updateProfile(upcrb.build())
+
+                                val imageRef = mStorageRef.child("images/profile/${binding.email.text.toString()}/profile.jpg")
+                                imageRef.putFile(uri)
+
+
+
+
                                 updateUI(user)
                             }
                         }
@@ -97,7 +126,9 @@ class RegisterActivity : AppCompatActivity() {
             binding.name.error = null
         }
         val password: String = binding.password.text.toString()
+
         if (TextUtils.isEmpty(password)) {
+
             binding.password.error = "Required."
             valid = false
         } else {
@@ -120,7 +151,12 @@ class RegisterActivity : AppCompatActivity() {
             binding.identification.error = "Required."
             valid = false
 
-        } else{
+        }
+        if (binding.imageView.drawable == null) { // add image validation
+            Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()
+            valid = false
+        }
+        else{
             binding.surname.error = null
         }
 
@@ -141,4 +177,21 @@ class RegisterActivity : AppCompatActivity() {
             binding.surname.setText("")
         }
     }
+
+    private fun loadImage(result: Uri?){
+        val imageStream = contentResolver.openInputStream(result!!)
+        val image = BitmapFactory.decodeStream(imageStream)
+        binding.imageView.setImageBitmap(image)
+        val maxWidth = resources.getDimensionPixelSize(R.dimen.max_image_width)
+        val maxHeight = resources.getDimensionPixelSize(R.dimen.max_image_height)
+        val params = binding.imageView.layoutParams
+        params.width = resources.getDimensionPixelSize(R.dimen.max_image_width)
+        params.height = resources.getDimensionPixelSize(R.dimen.max_image_height)
+        binding.imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        uri = result
+
+
+    }
+
+
 }
