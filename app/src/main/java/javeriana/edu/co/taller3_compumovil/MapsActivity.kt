@@ -269,7 +269,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    fun fetchUserByEmail(otherUserEmail: String)
+    private fun fetchUserByEmail(otherUserEmail: String)
     {
         val database = Firebase.database
         val usersRef = database.getReference("users")
@@ -295,10 +295,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.i("Buscar usuario en la RTDB", "Usuario encontrado -> Latitud: $lat")
                 Log.i("Buscar usuario en la RTDB", "Usuario encontrado -> Longitud: $long")
 
-
                 val userPositionWithRTDB = LatLng(lat, long)
 
-                mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name).snippet(userPositionWithRTDB.toString()))
+                // Eliminar el marcador antiguo, si existe
+                userMarker?.remove()
+
+                // Crear un nuevo marcador y asignarlo a la referencia del marcador
+                userMarker = mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name).snippet(userPositionWithRTDB.toString()))
                 Log.i("Buscar usuario en la RTDB", "Marcador añadido en: $userPositionWithRTDB")
                 //mMap.moveCamera(CameraUpdateFactory.newLatLng(userPositionWithRTDB))
             }
