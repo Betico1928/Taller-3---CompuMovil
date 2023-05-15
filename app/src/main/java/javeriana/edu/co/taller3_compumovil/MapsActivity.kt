@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -286,16 +287,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val userSnapshot = dataSnapshot.children.iterator().next()
 
                 // Extraer los datos y asignarlos a las variables
-                val name = userSnapshot.child("name").value as String?
-                val lat = userSnapshot.child("lat").value as Double?
-                val long = userSnapshot.child("long").value as Double?
+                val name = userSnapshot.child("name").value as String
+                val lat = userSnapshot.child("lat").value as Double
+                val long = userSnapshot.child("long").value as Double
 
                 // Imprimir los valores de las variables
                 println("Nombre: $name")
                 println("Latitud: $lat")
                 println("Longitud: $long")
 
-                Toast.makeText(baseContext, "ubicacion$lat$long", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(baseContext, "ubicacion$lat$long", Toast.LENGTH_SHORT).show()
+
+                val userPositionWithRTDB = LatLng(lat, long)
+
+                mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name))
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(userPositionWithRTDB))
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
