@@ -51,6 +51,7 @@ class ListActivity : AppCompatActivity() {
                         storageReference.downloadUrl.addOnSuccessListener { uri ->
                             val item = Item(uri, itemText, View.OnClickListener {
                                 // Handle button click here ALBERTO LO QUE SEA QUE VALLAS A HACFER ES AHI
+                                // Como diria Bob en Los Increibles: "A trabajar" :D
 
                             })
                             itemList.add(item)
