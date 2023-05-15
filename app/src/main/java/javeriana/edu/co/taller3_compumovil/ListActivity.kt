@@ -46,25 +46,25 @@ class ListActivity : AppCompatActivity() {
                     val user = userSnapshot.getValue(RTDUser::class.java)
                     if (user != null && user.disponible) {
                         val imagePath = "images/profile/${user.email}/profile.jpg"
+                        Log.d("IMASD", "Added item to list: $imagePath")
+
                         val storageReference = storage.getReference(imagePath)
                         val itemText = user.name
 
                         storageReference.downloadUrl.addOnSuccessListener { uri ->
                             val item = Item(uri, itemText, View.OnClickListener {
-                                // Handle button click here ALBERTO LO QUE SEA QUE VALLAS A HACFER ES AHI
-                                // Como diria Bob en Los Increibles: "A trabajar" :D
-
+                                // Handle button click here
                                 val mostrarAlUsuarioEnElMapa = Intent(baseContext, MapsActivity::class.java)
                                 mostrarAlUsuarioEnElMapa.putExtra("user", user.email)
-
                                 startActivity(mostrarAlUsuarioEnElMapa)
-
                             })
-                            itemList.add(item)
-                            Log.d("ListActivity", "Added item to list: $item")
-                            Log.d("ListActivity", "itemList size: ${itemList.size}")
-                            adapter.notifyDataSetChanged()
-                            binding.list.adapter = adapter
+                            if (!itemList.any { it.text == itemText }) { // check if itemText already exists
+                                itemList.add(item)
+                                Log.d("ListActivity", "Added item to list: $item")
+                                Log.d("ListActivity", "itemList size: ${itemList.size}")
+                                adapter.notifyDataSetChanged()
+                                binding.list.adapter = adapter
+                            }
                         }.addOnFailureListener { exception ->
                             Log.e("ListActivity", "Error downloading image: ${exception.message}")
                         }
@@ -76,5 +76,6 @@ class ListActivity : AppCompatActivity() {
                 Log.e("ListActivity", "onCancelled: ${error.message}")
             }
         })
+
     }
 }
