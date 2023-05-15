@@ -90,9 +90,13 @@ public class BackgroundBootService extends Service {
                     Log.d("NotificationChannel", "(Foreground) NotificationChannel: " + notiNumberSTR );
                     createDisponibleUserNotificationChannel(notiNumberSTR);
 
-                    // Intent para enviar a revisar la ubicacion del usuario
-                    Intent disponibleUserIntent = new Intent(getBaseContext(), MainActivity.class);
+                    // Intent para enviar a MapsActivity
+                    Intent disponibleUserIntent = new Intent(getBaseContext(), MapsActivity.class);
                     disponibleUserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    // Agregar correo del usuario como extra
+                    disponibleUserIntent.putExtra("user", user.getEmail());  // Asegúrate de que el método getEmail() existe en tu clase de usuario
+
                     PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, disponibleUserIntent, PendingIntent.FLAG_IMMUTABLE);
 
                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getBaseContext(), notiNumberSTR)
@@ -104,6 +108,7 @@ public class BackgroundBootService extends Service {
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true)
                             .setOngoing(true); // Make the notification sticky
+
 
 
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getBaseContext());

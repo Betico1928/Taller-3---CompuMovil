@@ -189,6 +189,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Controles de zoom
         mMap.uiSettings.isZoomControlsEnabled = true
 
+        val posicionInicial = LatLng(4.656557, -74.092789)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicionInicial, 11f))
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
         ) {
