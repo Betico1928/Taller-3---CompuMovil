@@ -21,9 +21,7 @@ class MapsWithOtherUserActivity : AppCompatActivity(), OnMapReadyCallback {
     {
         super.onCreate(savedInstanceState)
 
-        val userEmail = intent.getStringExtra("user")
 
-        Toast.makeText(baseContext, "Hola! El email del user es: $userEmail", Toast.LENGTH_LONG).show()
 
         binding = ActivityMapsWithOtherUserBinding.inflate(layoutInflater)
         setContentView(binding.root)

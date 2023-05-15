@@ -30,6 +30,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
@@ -50,6 +51,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationCallback: LocationCallback
     private lateinit var mapsBinding : ActivityMapsBinding
     private var currentMarker: Marker? = null
+    private var otherUserEmail: String? = null
+    private var userMarker: Marker? = null
 
     // Realtime DB and Auth Vars
     private lateinit var mAuth: FirebaseAuth
@@ -98,8 +101,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         encenderGPS()
 
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+
+        otherUserEmail = intent.getStringExtra("user")
+        Toast.makeText(baseContext, "Hola! El email del user es: $otherUserEmail", Toast.LENGTH_SHORT).show()
+
+
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -243,6 +251,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Write to realtimeDB
         writeUserToRealtimeDB()
 
+        if (userMarker == null)
+        {
+            otherUserEmail?.let { fetchUserByEmail(it) }
+        }
+
 
         if (currentMarker == null)
         {
@@ -256,6 +269,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Que la camara se mueva con la ubicación
         //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 15f))
     }
+
+    fun fetchUserByEmail(otherUserEmail: String)
+    {
+        val database = Firebase.database
+        val usersRef = database.getReference("users")
+
+        Toast.makeText(baseContext, "MAMARCADOR" + otherUserEmail, Toast.LENGTH_SHORT).show()
+
+        val query = usersRef.orderByChild("email").equalTo(otherUserEmail)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener
+        {
+            override fun onDataChange(dataSnapshot: DataSnapshot)
+            {
+                val userSnapshot = dataSnapshot.children.iterator().next()
+
+                // Extraer los datos y asignarlos a las variables
+                val name = userSnapshot.child("name").value as String?
+                val lat = userSnapshot.child("lat").value as Double?
+                val long = userSnapshot.child("long").value as Double?
+
+                // Imprimir los valores de las variables
+                println("Nombre: $name")
+                println("Latitud: $lat")
+                println("Longitud: $long")
+
+                Toast.makeText(baseContext, "ubicacion$lat$long", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Error al buscar al usuario: ${databaseError.toException()}")
+            }
+        })
+    }
+
+
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

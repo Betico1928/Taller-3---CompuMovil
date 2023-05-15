@@ -54,7 +54,7 @@ class ListActivity : AppCompatActivity() {
                                 // Handle button click here ALBERTO LO QUE SEA QUE VALLAS A HACFER ES AHI
                                 // Como diria Bob en Los Increibles: "A trabajar" :D
 
-                                val mostrarAlUsuarioEnElMapa = Intent(baseContext, MapsWithOtherUserActivity::class.java)
+                                val mostrarAlUsuarioEnElMapa = Intent(baseContext, MapsActivity::class.java)
                                 mostrarAlUsuarioEnElMapa.putExtra("user", user.email)
 
                                 startActivity(mostrarAlUsuarioEnElMapa)
