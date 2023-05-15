@@ -95,16 +95,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Map funcs
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         mapsBinding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(mapsBinding.root)
 
         encenderGPS()
 
-
         otherUserEmail = intent.getStringExtra("user")
-        Toast.makeText(baseContext, "Hola! El email del user es: $otherUserEmail", Toast.LENGTH_SHORT).show()
 
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -112,6 +111,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+
 
         locationCallback = object : LocationCallback()
         {
@@ -252,11 +253,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Write to realtimeDB
         writeUserToRealtimeDB()
 
-        if (userMarker == null)
-        {
-            otherUserEmail?.let { fetchUserByEmail(it) }
-        }
-
+        otherUserEmail?.let { fetchUserByEmail(it) }
 
         if (currentMarker == null)
         {
@@ -271,12 +268,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 15f))
     }
 
+
     fun fetchUserByEmail(otherUserEmail: String)
     {
         val database = Firebase.database
         val usersRef = database.getReference("users")
 
-        Toast.makeText(baseContext, "MAMARCADOR" + otherUserEmail, Toast.LENGTH_SHORT).show()
+        Log.i("Buscar usuario en la RTDB", "Email del usuario a buscar: $otherUserEmail")
 
         val query = usersRef.orderByChild("email").equalTo(otherUserEmail)
 
@@ -292,20 +290,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val long = userSnapshot.child("long").value as Double
 
                 // Imprimir los valores de las variables
-                println("Nombre: $name")
-                println("Latitud: $lat")
-                println("Longitud: $long")
+                Log.i("Buscar usuario en la RTDB", "Usuario encontrado ->")
+                Log.i("Buscar usuario en la RTDB", "Usuario encontrado -> Nombre: $name")
+                Log.i("Buscar usuario en la RTDB", "Usuario encontrado -> Latitud: $lat")
+                Log.i("Buscar usuario en la RTDB", "Usuario encontrado -> Longitud: $long")
 
-                //Toast.makeText(baseContext, "ubicacion$lat$long", Toast.LENGTH_SHORT).show()
 
                 val userPositionWithRTDB = LatLng(lat, long)
 
-                mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name))
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(userPositionWithRTDB))
+                mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name).snippet(userPositionWithRTDB.toString()))
+                Log.i("Buscar usuario en la RTDB", "Marcador añadido en: $userPositionWithRTDB")
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(userPositionWithRTDB))
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                println("Error al buscar al usuario: ${databaseError.toException()}")
+            override fun onCancelled(databaseError: DatabaseError)
+            {
+                Log.i("Buscar usuario en la RTDB", "Error al buscar al usuario: ${databaseError.toException()}")
             }
         })
     }
