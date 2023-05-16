@@ -370,6 +370,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (distanciaTotal != 0.0)
             {
                 //Toast.makeText(baseContext, "La distancia entre los dos usuarios es de $formattedDistance km", Toast.LENGTH_SHORT).show()
+
+                Log.i("Calcular Distancia entre 2 coordenadas", "La distancia entre los dos usuarios es de $formattedDistance km")
+
                 mapsBinding.distanciaEntreUsuariosText.visibility = View.VISIBLE
                 mapsBinding.distanciaEntreUsuariosText.text = "La distancia entre los dos usuarios es de $formattedDistance km"
 
