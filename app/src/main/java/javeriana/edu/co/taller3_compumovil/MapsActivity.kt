@@ -43,6 +43,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.math.PI
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -54,6 +60,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var currentMarker: Marker? = null
     private var otherUserEmail: String? = null
     private var userMarker: Marker? = null
+    private var localUserLatitude : Double? = null
+    private var localUserLongitude : Double? = null
 
     // Realtime DB and Auth Vars
     private lateinit var mAuth: FirebaseAuth
@@ -66,28 +74,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var rawName: String? = ""
 
     // Global listener is required so it can be removed later
-    val userListener = object : ChildEventListener {
-        override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+    val userListener = object : ChildEventListener
+    {
+        override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?)
+        {
             // This method is called once for each child that is added
             val user = dataSnapshot.getValue<User>()
             Log.d("RealtimeDB", "Listener -> User added: " + user.toString())
         }
-        override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+
+        override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?)
+        {
             // This method is called whenever a child is updated
             val user = dataSnapshot.getValue<User>()
             Log.d("RealtimeDB", "Listener -> User changed: "  + user.toString())
         }
-        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+
+        override fun onChildRemoved(dataSnapshot: DataSnapshot)
+        {
             // This method is called when a child is removed
             val user = dataSnapshot.getValue<User>()
             Log.d("RealtimeDB", "Listener -> User removed: "  + user.toString())
         }
-        override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+
+        override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?)
+        {
             // This method is called when a child location is changed
             val user = dataSnapshot.getValue<User>()
             Log.d("RealtimeDB", "Listener -> User moved: "  + user.toString())
         }
-        override fun onCancelled(databaseError: DatabaseError) {
+
+        override fun onCancelled(databaseError: DatabaseError)
+        {
             // Getting User failed, log a message
             Log.d("RealtimeDB", "Listener -> loadUser:onCancelled", databaseError.toException())
         }
@@ -245,7 +263,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun updateMarker(location: Location) {
+    private fun updateMarker(location: Location)
+    {
         val newLatLng = LatLng(location.latitude, location.longitude)
 
         // Update user info
@@ -255,6 +274,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Write to realtimeDB
         writeUserToRealtimeDB()
+
+        localUserLatitude = location.latitude
+        localUserLongitude = location.longitude
 
         otherUserEmail?.let { fetchUserByEmail(it) }
 
@@ -307,6 +329,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 userMarker = mMap.addMarker(MarkerOptions().position(userPositionWithRTDB).title(name).snippet(userPositionWithRTDB.toString()))
                 Log.i("Buscar usuario en la RTDB", "Marcador añadido en: $userPositionWithRTDB")
                 //mMap.moveCamera(CameraUpdateFactory.newLatLng(userPositionWithRTDB))
+
+                calcularDistancia(lat, long)
             }
 
             override fun onCancelled(databaseError: DatabaseError)
@@ -316,8 +340,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
+    private fun calcularDistancia(latExternalUser: Double, longExternalUser: Double)
+    {
+        if (localUserLatitude != null && localUserLongitude != null)
+        {
+            // Convertir grados a radianes
+            val lat1 = localUserLatitude!! * PI / 180
+            val lon1 = localUserLongitude!! * PI / 180
+            val lat2 = latExternalUser * PI / 180
+            val lon2 = longExternalUser * PI / 180
 
+            // Diferencia de coordenadas
+            val dlon = lon2 - lon1
+            val dlat = lat2 - lat1
 
+            // Fórmula de Haversine
+            val a = sin(dlat / 2).pow(2.0) + cos(lat1) * cos(lat2) * sin(dlon / 2).pow(2.0)
+            val c = 2 * asin(sqrt(a))
+
+            // Radio de la Tierra (en km)
+            val r = 6371
+
+            // Calcular distancia
+            val distanciaTotal = c * r
+
+            val formattedDistance = String.format("%.2f", distanciaTotal)
+
+            Toast.makeText(baseContext, "La distancia entre los dos puntos es de $formattedDistance km", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            Log.i("Calcular Distancia entre 2 coordenadas", "Error, no se ha podido calcular la distancia")
+        }
+    }
 
 
     override fun onRequestPermissionsResult(
