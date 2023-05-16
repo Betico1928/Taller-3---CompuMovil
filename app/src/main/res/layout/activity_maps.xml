@@ -28,27 +28,27 @@
                 android:id="@+id/ocupadoButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ocupado"
+                android:text="@string/ocupado"
                 android:textSize="12sp" />
 
             <Button
                 android:id="@+id/verUsuariosButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ver Usuarios"
+                android:text="@string/ver_usuarios"
                 android:textSize="12sp" />
 
             <Button
                 android:id="@+id/disponibleButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Disponible"
+                android:text="@string/disponible"
                 android:backgroundTint="@color/red"
                 android:textSize="12sp" />
 
             <ImageButton
                 android:id="@+id/logOutButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -61,16 +61,31 @@
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="650dp"
-            android:layout_marginTop="14dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/distanciaEntreUsuariosText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout"
             tools:context=".MapsActivity">
         </fragment>
 
+        <TextView
+            android:id="@+id/distanciaEntreUsuariosText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/distancia_texto_inicial"
+            android:textSize="16sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/map"></TextView>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>
 
 

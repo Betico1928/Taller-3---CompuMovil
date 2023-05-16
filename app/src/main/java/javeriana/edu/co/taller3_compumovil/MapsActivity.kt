@@ -9,6 +9,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -366,7 +367,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val formattedDistance = String.format("%.2f", distanciaTotal)
 
-            Toast.makeText(baseContext, "La distancia entre los dos puntos es de $formattedDistance km", Toast.LENGTH_SHORT).show()
+            if (distanciaTotal != 0.0)
+            {
+                //Toast.makeText(baseContext, "La distancia entre los dos usuarios es de $formattedDistance km", Toast.LENGTH_SHORT).show()
+                mapsBinding.distanciaEntreUsuariosText.visibility = View.VISIBLE
+                mapsBinding.distanciaEntreUsuariosText.text = "La distancia entre los dos usuarios es de $formattedDistance km"
+
+            }
         }
         else
         {
