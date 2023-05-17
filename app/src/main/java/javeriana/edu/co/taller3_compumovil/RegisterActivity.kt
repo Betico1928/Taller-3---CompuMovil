@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
 import android.widget.ImageView
@@ -15,10 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.*
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import javeriana.edu.co.taller3_compumovil.databinding.ActivityRegisterBinding
 import javeriana.edu.co.taller3_compumovil.pojos.User
-import java.io.File
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -164,12 +163,15 @@ class RegisterActivity : AppCompatActivity() {
         return valid
     }
 
-
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
-            val intent = Intent(baseContext, MapsActivity::class.java)
+            val intent = Intent(baseContext, MainActivity::class.java)
             intent.putExtra("user", binding.identification.text.toString())
-            startActivity(intent)
+
+            Handler().postDelayed({
+                Log.d("RealtimeDB", "Waiting 3 seconds")
+                startActivity(intent)
+            }, 3000) // 3000 milliseconds = 3 seconds
         } else {
             binding.name.setText("")
             binding.password.setText("")
