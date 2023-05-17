@@ -112,7 +112,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    // Map funcs
+
+
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -121,6 +122,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(mapsBinding.root)
 
         encenderGPS()
+
+        // Check if a user is logged in
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            // User not logged in, redirect to login screen or handle the situation accordingly
+            // For example, you can start a LoginActivity using an Intent
+            val loginIntent = Intent(this, MainActivity::class.java)
+            startActivity(loginIntent)
+            finish() // Optional: Finish the current activity so that the user can't go back without logging in
+            return // Exit the onCreate() method
+        }
 
         otherUserEmail = intent.getStringExtra("user")
 
